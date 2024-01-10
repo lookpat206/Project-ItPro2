@@ -1,0 +1,10 @@
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\bin\Debug\youtubeplayer2.exe.config
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\bin\Debug\youtubeplayer2.exe
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\bin\Debug\youtubeplayer2.pdb
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\obj\Debug\youtubeplayer2.csproj.AssemblyReference.cache
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\obj\Debug\youtubeplayer2.Form1.resources
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\obj\Debug\youtubeplayer2.Properties.Resources.resources
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\obj\Debug\youtubeplayer2.csproj.GenerateResource.cache
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\obj\Debug\youtubeplayer2.csproj.CoreCompileInputs.cache
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\obj\Debug\youtubeplayer2.exe
+C:\Users\k-ang\source\repos\youtubeplayer2\youtubeplayer2\obj\Debug\youtubeplayer2.pdb
