@@ -54,61 +54,175 @@
 
 ### ขั้นตอนการใช้งาน API
 
-1. ติดตั้ง node js
-2. สร้างไฟล์ .env ใช้เก็บข้อมูล Database
-   ```
-   DB_HOst="localhost"
-   DB_USER="root"
-   DB_PASS=""
-   DB_NAME="myproject"
-   DB_PORT=3306
-   ```
-3. สร้างโฟเดอร์ src ใช้เก็บไฟเดอร์ config ประกอบด้วย ไฟล์ config-database.js และ ไฟล์ index.js
+1.  ติดตั้ง node js
+2.  สร้างไฟล์ .env ใช้เก็บข้อมูล Database
+    ```
+    DB_HOst="localhost"
+    DB_USER="root"
+    DB_PASS=""
+    DB_NAME="myproject"
+    DB_PORT=3306
+    ```
+3.  สร้างโฟเดอร์ src ใช้เก็บไฟเดอร์ config ประกอบด้วย ไฟล์ config-database.js และ ไฟล์ index.js
 
-   - ไฟล์ config-database.js
+    - ไฟล์ config-database.js ใช้สำหรับเชื่อมต่อกับฐานข้อมูล
 
-   ```
-      const mysql = require('mysql');
-      const DB = mysql.createPool({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password:process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      port: process.env.DB_PORT,
-      })
+      ```
+         const mysql = require('mysql');
+         const DB = mysql.createPool({
+         host: process.env.DB_HOST,
+         user: process.env.DB_USER,
+         password:process.env.DB_PASS,
+         database: process.env.DB_NAME,
+         port: process.env.DB_PORT,
+         })
 
-      module.exports = DB;
+         module.exports = DB;
+      ```
 
-   ```
+    - ไฟล์ index.js
 
-   - ไฟล์ index.js
+      > ส่วนที 1 ใช้สำหรับดึงข้อมูลจาก database
 
-     > ส่วนที 1 ใช้สำหรับดึงข้อมูลจาก database
+      ```
+            const express = require("express");
+            require("dotenv/config");
+            const bp = require("body-parser");
+            const cors = require("cors");
+            const DB = require("./config/config-database.js");
+            const moment = require("moment");
 
-     ```
-     const express = require("express");
-     require("dotenv/config");
-     const bp = require("body-parser");
-     const cors = require("cors");
-     const DB = require("./config/config-database.js");
-     const moment = require("moment");
-     ```
+      ```
 
-     > ส่วนที่ 2 ใช้สำหรับส่งข้อมูลไปยัง localhost
+      > ส่วนที่ 2 ใช้สำหรับส่งข้อมูลไปยัง localhost
 
-     ```
-     const app = express();
-     app.use(express.json());
-     app.use(cors());
-     app.use(function (req, res, next) {
-     res.setTimeout(120000, function () {
-     res.send(408);
-     });
-     next();
-     });
+      ```
+         const app = express();
+            app.use(express.json());
+            app.use(cors());
+            app.use(function (req, res, next) {
+            res.setTimeout(120000, function () {
+            res.send(408);
+            });
+            next();
+            });
+         //localhost
+            app.listen(5000, () => console.log(`Listening on port${5000}...`));
+      ```
 
-     // localhost
-     app.listen(5000, () => console.log(`Listening on port${5000}...`));
-     ```
+      > ส่วนที่ 3 ใช้สำหรับ ดึงข้อมูล เพิ่มข้อมูล และลบข้อมูล จากฐานข้อมูล.
 
-     > 2.1
+      - การดึงข้อมูล
+
+        - การดึงข้อมูลโดยใช้ GET
+
+        ```
+           app.get("/getUser", async (req, res) => {
+           const qry = "SELECT \* from user ";
+           DB.query(qry, function (error, results, fields) {
+           return res.json(results);
+           });
+           });
+
+        ```
+
+        - การดึงข้อมูลโดยใช้ POST
+
+        ```
+           app.post("/getUserByID/:id", async (req, res) => {
+           try {
+           const id = req.params.id;
+           const qry = `SELECT * from user WHERE id ='${id}'`;
+           DB.query(qry, function (error, results, fields) {
+           return res.json(results);
+               });
+           } catch (error) {
+           res.send({ message: "error", errors: errors });
+               }
+               });
+        ```
+
+        ```
+           app.post("/getUserByID", async (req, res) => {
+           try {
+           const id = req.query.id;
+           const id2 = req.query.id;
+           const qry = `SELECT * from user WHERE id ='${id}'`;
+           DB.query(qry, function (error, results, fields) {
+           return res.json(results);
+           });
+           } catch (error) {
+           res.send({ message: "error", errors: errors });
+           }
+           });
+        ```
+
+      - การเพิ่มข้อมูล
+
+        ```
+              app.post("/updateUser/:id", async (req, res) => {
+              try {
+              const id = req.params.id;
+              const { username, password } = req.body;
+           const qry = `UPDATE user set username= '${username}',password = '${password}'
+           WHERE id ='${id}'`;
+
+           DB.query(qry, function (error, results, fields) {
+           return res.json(results);
+           });
+           } catch (error) {
+           res.send({ message: "error", errors: errors });
+           }
+           });
+        ```
+
+      - การแก้ไขข้อมูล
+
+        ```
+               app.post("/createUser", async (req, res) => {
+               try {
+               const qry = `INSERT INTO user (id,username,password,create_data)
+               VALUE (NULL,'${req.body.username}','${req.body.password
+               }','${moment().format("YYYY-MM-DD")}')`;
+               DB.query(qry, function (error, results, fields) {
+               return res.send("success");
+               });
+               } catch (error) {
+               return res.send("Failde");
+               }
+               });
+
+        ```
+
+      - การลบข้อมูล
+
+        ```
+
+              app.delete("/deleteUser/:id", async (req, res) => {
+              try {
+              const id = req.params.id;
+
+              const qry = `DELETE FROM user
+              WHERE id ='${id}'`;
+              DB.query(qry, function (error, results, fields) {
+              return res.json(results);
+              });
+
+              } catch (error) {
+              res.send({ message: "error", errors: errors });
+              }
+              });
+        ```
+
+### ทดสอบ API ผ่าน Postman
+
+1. เปิด Postman:เปิด Postman บนเครื่องคอมพิวเตอร์ของคุณ
+
+2. เลือก HTTP Method: เลือก HTTP method ที่ถูกต้องตามที่ API ของคุณรองรับ
+
+3. ระบุ URL: ใส่ URL ของ API ที่คุณต้องการทดสอบ เช่น "/getUserByID" หรือ "/getUserByID/:id" ขึ้นอยู่กับว่าคุณให้ค่า id ผ่าน query string หรือผ่าน URL parameter
+   ระบุข้อมูล (ถ้าต้องการ):
+
+4. กดปุ่ม Send:กดปุ่ม "Send" เพื่อส่ง request ไปที่ API
+
+5. ดูผลลัพธ์: Postman จะแสดงผลลัพธ์จาก API บนส่วนของ "Body" ในรูปแบบ JSON.
